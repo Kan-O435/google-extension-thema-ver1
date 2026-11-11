@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>設定</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1>設定</h1>
+
+  <section>
+    <h2>曜日ごとの背景画像</h2>
+    <ul id="days"></ul>
+  </section>
+
+  <section>
+    <h2>ショートカット</h2>
+    <form id="form">
+      <input id="title" placeholder="タイトル" required maxlength="30">
+      <input id="url" placeholder="URL (例: https://example.com)" required>
+      <button type="submit" id="submit">追加</button>
+      <button type="button" id="cancel" hidden>キャンセル</button>
+    </form>
+    <p id="error" role="alert"></p>
+    <ul id="list"></ul>
+  </section>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
