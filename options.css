@@ -13,3 +13,9 @@ input { padding: 6px 8px; }
 #url { flex: 1; min-width: 200px; }
 button { padding: 6px 12px; cursor: pointer; }
 #error { color: #c00; min-height: 1.2em; }
+
+.day { align-items: flex-start; }
+.thumbs { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.thumb { position: relative; }
+.del { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 0; background: #c00; color: #fff; font-size: 12px; line-height: 18px; }
+.day input[type=file] { width: 110px; flex: none; }

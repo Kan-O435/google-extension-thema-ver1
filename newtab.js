@@ -1,4 +1,5 @@
-import { getState, getImage, faviconUrl } from "./lib/storage.js";
+import { getState, faviconUrl } from "./lib/storage.js";
+import { pickImage } from "./lib/pool.js";
 import { currentWeekday, onWeekdayChange } from "./lib/weekday.js";
 
 const bg = document.getElementById("bg");
@@ -6,16 +7,13 @@ const list = document.getElementById("shortcuts");
 let currentObjectUrl = null;
 
 async function renderBackground(day) {
-  const { weekdayImages } = await getState();
-  const id = weekdayImages[day];
-  const blob = id ? await getImage(id).catch(() => null) : null;
+  const picked = await pickImage(day);
 
   if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-  currentObjectUrl = null;
+  currentObjectUrl = picked?.isObjectUrl ? picked.src : null;
 
-  if (blob) {
-    currentObjectUrl = URL.createObjectURL(blob);
-    bg.style.backgroundImage = `url("${currentObjectUrl}")`;
+  if (picked) {
+    bg.style.backgroundImage = `url("${picked.src}")`;
     bg.classList.add("show");
   } else {
     bg.style.backgroundImage = "";

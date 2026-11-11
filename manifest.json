@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Weekday Newtab",
+  "name": "Ayusama-haikei",
   "version": "0.1.0",
-  "description": "曜日ごとに背景画像が変わり、ショートカットを置ける新しいタブ",
+  "description": "自分の好きな背景配置にカスタマイズした拡張機能",
   "permissions": ["storage", "favicon", "unlimitedStorage"],
   "chrome_url_overrides": { "newtab": "newtab.html" },
   "options_page": "options.html"

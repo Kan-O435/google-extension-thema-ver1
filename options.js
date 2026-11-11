@@ -3,6 +3,7 @@ import {
   saveImage, getImage, deleteImage, normalizeUrl, faviconUrl,
 } from "./lib/storage.js";
 import { DAY_NAMES } from "./lib/weekday.js";
+import { bundledEntries } from "./lib/pool.js";
 
 const daysEl = document.getElementById("days");
 const listEl = document.getElementById("list");
@@ -15,52 +16,72 @@ const errorEl = document.getElementById("error");
 
 let editingId = null;
 
-/* ---------- 曜日ごとの画像 ---------- */
+/* ---------- 曜日ごとの画像(複数枚) ---------- */
 async function renderDays() {
   const { weekdayImages } = await getState();
   daysEl.replaceChildren();
 
   for (let day = 0; day < 7; day++) {
     const li = document.createElement("li");
+    li.className = "day";
     const name = Object.assign(document.createElement("span"), {
       className: "name", textContent: DAY_NAMES[day],
     });
-    const thumb = Object.assign(document.createElement("div"), { className: "thumb" });
-    const id = weekdayImages[day];
-    if (id) {
+
+    const thumbs = document.createElement("div");
+    thumbs.className = "thumbs";
+
+    // エディタ側 (config.js) の画像: 読み取り専用
+    for (const b of bundledEntries(day)) {
+      const t = Object.assign(document.createElement("div"), {
+        className: "thumb", title: `config.js: ${b.id.slice(2)}`,
+      });
+      t.style.backgroundImage = `url("${b.src}")`;
+      thumbs.append(t);
+    }
+
+    // アップロードした画像: 個別に削除できる
+    for (const id of weekdayImages[day] || []) {
+      const t = document.createElement("div");
+      t.className = "thumb";
       const blob = await getImage(id).catch(() => null);
-      if (blob) thumb.style.backgroundImage = `url("${URL.createObjectURL(blob)}")`;
+      if (blob) t.style.backgroundImage = `url("${URL.createObjectURL(blob)}")`;
+      const del = Object.assign(document.createElement("button"), {
+        className: "del", textContent: "×", title: "削除",
+      });
+      del.addEventListener("click", async () => {
+        const state = await getState();
+        const rest = (state.weekdayImages[day] || []).filter((x) => x !== id);
+        const next = { ...state.weekdayImages, [day]: rest };
+        if (!rest.length) delete next[day];
+        await setWeekdayImages(next);
+        await deleteImage(id);
+        renderDays();
+      });
+      t.append(del);
+      thumbs.append(t);
     }
 
     const file = Object.assign(document.createElement("input"), {
-      type: "file", accept: "image/*",
+      type: "file", accept: "image/*", multiple: true,
     });
     file.addEventListener("change", async () => {
-      const f = file.files[0];
-      if (!f) return;
-      const newId = crypto.randomUUID();
-      await saveImage(newId, f);
+      const ids = [];
+      for (const f of file.files) {
+        const id = crypto.randomUUID();
+        await saveImage(id, f);
+        ids.push(id);
+      }
+      if (!ids.length) return;
       const state = await getState();
-      const old = state.weekdayImages[day];
-      await setWeekdayImages({ ...state.weekdayImages, [day]: newId });
-      if (old) await deleteImage(old);
+      await setWeekdayImages({
+        ...state.weekdayImages,
+        [day]: [...(state.weekdayImages[day] || []), ...ids],
+      });
       renderDays();
     });
 
-    const clear = Object.assign(document.createElement("button"), {
-      textContent: "削除", disabled: !id,
-    });
-    clear.addEventListener("click", async () => {
-      const state = await getState();
-      const old = state.weekdayImages[day];
-      const next = { ...state.weekdayImages };
-      delete next[day];
-      await setWeekdayImages(next);
-      if (old) await deleteImage(old);
-      renderDays();
-    });
-
-    li.append(name, thumb, file, clear);
+    li.append(name, thumbs, file);
     daysEl.append(li);
   }
 }
