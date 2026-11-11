@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "AyusaminTheme",
+  "version": "0.1.0",
+  "description": "ブラウザ上部のバーを淡い紫にするテーマ",
+  "theme": {
+    "colors": {
+      "frame": [221, 208, 242],
+      "frame_inactive": [234, 226, 247],
+      "frame_incognito": [120, 100, 150],
+      "toolbar": [240, 233, 250],
+      "tab_text": [58, 40, 90],
+      "tab_background_text": [92, 72, 126],
+      "bookmark_text": [58, 40, 90],
+      "toolbar_button_icon": [92, 72, 126],
+      "omnibox_background": [255, 255, 255],
+      "omnibox_text": [40, 30, 60]
+    }
+  }
+}
