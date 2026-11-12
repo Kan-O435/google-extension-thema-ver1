@@ -4,9 +4,10 @@ body { background: #202124; color: #fff; }
 
 #bg {
   position: fixed; inset: 0;
-  background-size: cover; background-position: center;
+  display: flex;
   opacity: 0; transition: opacity .4s;
 }
+#bg div { flex: 1; min-width: 0; background-size: cover; background-position: center top; }
 #bg.show { opacity: 1; }
 
 main {
