@@ -11,17 +11,20 @@ body { background: #202124; color: #fff; }
 #bg.show { opacity: 1; }
 
 main {
+  /* ショートカットの縦位置: 下端からの距離。大きいほど上、小さいほど下 */
+  --shortcuts-bottom: 14vh;
   position: relative; min-height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 24px 24px var(--shortcuts-bottom);
 }
 
 #shortcuts {
   list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(5, 96px); gap: 20px;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
+  max-width: calc(8 * 96px + 7 * 20px); /* 1行は最大8個。超えたら折り返し */
 }
-@media (max-width: 640px) { #shortcuts { grid-template-columns: repeat(3, 96px); } }
 
+#shortcuts li { width: 96px; }
 #shortcuts a {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   color: #fff; text-decoration: none; font-size: 12px;
