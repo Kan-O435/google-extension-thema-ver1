@@ -1,37 +1,30 @@
 import { getState, faviconUrl } from "./lib/storage.js";
-import { pickImage } from "./lib/pool.js";
+import { pickImages } from "./lib/pool.js";
 import { currentWeekday, onWeekdayChange } from "./lib/weekday.js";
 
 const bg = document.getElementById("bg");
 const list = document.getElementById("shortcuts");
-let currentObjectUrl = null;
+let objectUrls = [];
 
 async function renderBackground(day) {
-  const picked = await pickImage(day);
+  const picked = await pickImages(day, 3);
 
-  if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-  currentObjectUrl = picked?.isObjectUrl ? picked.src : null;
+  objectUrls.forEach((u) => URL.revokeObjectURL(u));
+  objectUrls = picked.filter((p) => p.isObjectUrl).map((p) => p.src);
 
-  if (picked) {
-    bg.style.backgroundImage = `url("${picked.src}")`;
-    bg.classList.add("show");
-  } else {
-    bg.style.backgroundImage = "";
-    bg.classList.remove("show"); // 未設定: 単色背景にフォールバック
-  }
+  bg.replaceChildren(
+    ...picked.map((p) => {
+      const d = document.createElement("div");
+      d.style.backgroundImage = `url("${p.src}")`;
+      return d;
+    })
+  );
+  bg.classList.toggle("show", picked.length > 0); // 未設定: 単色背景にフォールバック
 }
 
 async function renderShortcuts() {
   const { shortcuts } = await getState();
   list.replaceChildren();
-
-  if (shortcuts.length === 0) {
-    const li = document.createElement("li");
-    li.className = "empty";
-    li.textContent = "右下の ⚙ からショートカットを追加できます";
-    list.append(li);
-    return;
-  }
 
   for (const s of shortcuts) {
     const li = document.createElement("li");
