@@ -7,13 +7,18 @@ body { background: #202124; color: #fff; }
   display: flex;
   opacity: 0; transition: opacity .4s;
 }
-#bg div { flex: 1; min-width: 0; background-size: cover; background-position: center top; }
+#bg div {
+  flex: 1; min-width: 0; background-size: cover; background-position: center top;
+  /* 登場演出: 画像が左から順にフェード+スライド */
+  animation: imageIn .8s cubic-bezier(.2, .7, .2, 1) both;
+  animation-delay: calc(var(--i, 0) * 130ms);
+}
 #bg.show { opacity: 1; }
 
 main {
   /* ショートカットの縦位置: 下端からの距離。大きいほど上、小さいほど下 */
   --shortcuts-bottom: 14vh;
-  position: relative; min-height: 100%;
+  position: relative; z-index: 2; min-height: 100%;
   display: flex; align-items: flex-end; justify-content: center;
   padding: 24px 24px var(--shortcuts-bottom);
 }
@@ -24,16 +29,30 @@ main {
   max-width: calc(8 * 96px + 7 * 20px); /* 1行は最大8個。超えたら折り返し */
 }
 
-#shortcuts li { width: 96px; }
+#shortcuts li {
+  width: 96px;
+  /* 登場演出: 画像のあとにショートカットが順にふわっと出る */
+  animation: riseIn .6s ease-out both;
+  animation-delay: calc(.5s + var(--i, 0) * 60ms);
+}
 #shortcuts a {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   color: #fff; text-decoration: none; font-size: 12px;
   padding: 12px 4px; border-radius: 12px;
   background: rgba(0, 0, 0, .35); backdrop-filter: blur(6px);
-  transition: background .15s, transform .15s;
+  transition: background .2s, transform .2s, box-shadow .2s;
 }
-#shortcuts a:hover { background: rgba(0, 0, 0, .55); transform: translateY(-2px); }
-#shortcuts img { width: 48px; height: 48px; border-radius: 10px; background: #fff; object-fit: cover; }
+/* ホバー演出: 少し浮いて拡大し、淡い紫に光る */
+#shortcuts a:hover {
+  background: rgba(60, 30, 100, .55);
+  transform: translateY(-4px) scale(1.07);
+  box-shadow: 0 8px 24px rgba(200, 160, 255, .55), 0 0 0 1px rgba(255, 255, 255, .35);
+}
+#shortcuts img {
+  width: 48px; height: 48px; border-radius: 10px; background: #fff; object-fit: cover;
+  transition: transform .25s;
+}
+#shortcuts a:hover img { transform: scale(1.1) rotate(-4deg); }
 #shortcuts span { max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 #settings {
@@ -42,7 +61,28 @@ main {
   display: grid; place-items: center;
   color: #fff; text-decoration: none; font-size: 20px;
   background: rgba(0, 0, 0, .4); opacity: .6;
+  z-index: 3; animation: fadeIn .8s ease-out 1s both;
 }
 #settings:hover { opacity: 1; }
 
 .empty { color: #fff; text-shadow: 0 1px 4px #000; text-align: center; }
+
+/* パーティクル(lib/particles.js)用のキャンバス。クリックは素通しする */
+#fx { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+@keyframes imageIn {
+  from { opacity: 0; transform: translateY(28px) scale(1.03); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: .6; } }
+
+/* OS の「視差効果を減らす」設定では動きを止める */
+@media (prefers-reduced-motion: reduce) {
+  #bg div, #shortcuts li, #settings { animation: none; }
+  #shortcuts a, #shortcuts img { transition: none; }
+  #fx { display: none; }
+}

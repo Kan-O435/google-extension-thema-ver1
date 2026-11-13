@@ -1,6 +1,7 @@
 import { getState, faviconUrl } from "./lib/storage.js";
 import { pickImages } from "./lib/pool.js";
 import { currentWeekday, onWeekdayChange } from "./lib/weekday.js";
+import { startParticles } from "./lib/particles.js";
 
 const bg = document.getElementById("bg");
 const list = document.getElementById("shortcuts");
@@ -13,8 +14,9 @@ async function renderBackground(day) {
   objectUrls = picked.filter((p) => p.isObjectUrl).map((p) => p.src);
 
   bg.replaceChildren(
-    ...picked.map((p) => {
+    ...picked.map((p, i) => {
       const d = document.createElement("div");
+      d.style.setProperty("--i", i);
       d.style.backgroundImage = `url("${p.src}")`;
       return d;
     })
@@ -26,8 +28,9 @@ async function renderShortcuts() {
   const { shortcuts } = await getState();
   list.replaceChildren();
 
-  for (const s of shortcuts) {
+  shortcuts.forEach((s, i) => {
     const li = document.createElement("li");
+    li.style.setProperty("--i", Math.min(i, 12)); // 登場の遅延が長くなりすぎないよう上限
     const a = document.createElement("a");
     a.href = s.url;
     const img = document.createElement("img");
@@ -38,9 +41,10 @@ async function renderShortcuts() {
     a.append(img, label);
     li.append(a);
     list.append(li);
-  }
+  });
 }
 
 renderBackground(currentWeekday());
 renderShortcuts();
 onWeekdayChange(renderBackground);
+startParticles(document.getElementById("fx"));
